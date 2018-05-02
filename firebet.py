@@ -1,4 +1,4 @@
-mport random
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -13,48 +13,49 @@ class Gambler(object):
         die1 = random.choice([1,2,3,4,5,6])
         die2 = random.choice([1,2,3,4,5,6])
         return die1 + die2
-
+        
     def ShootCraps(self):
 
         outcome = ""
-        gameResults = []
-        fireBetProgress = []    
+        results = []
+        fireBetProgress = []
+        
         while(outcome != "seven out"):
 
             roll = self.RollDie()
 
             if roll == 7 or roll == 11:
                 outcome = str(roll) + " win"
-                gameResults.append(outcome)
+                results.append(outcome)
             elif roll == 2 or roll == 3 or roll == 12:
                 outcome = str(roll) + " craps"
-                gameResults.append(outcome)
+                results.append(outcome)
             else:
                 mark = roll
                 while("seven out" not in outcome and "hit point" not in outcome):
                     roll = self.RollDie()
                     if roll == mark:
                         outcome = "hit point " + str(mark)
-                        gameResults.append(outcome)
+                        results.append(outcome)
 
                         if mark not in fireBetProgress:
                             fireBetProgress.append(mark)
                             if len(fireBetProgress) >= self.goal:
-                                gameResults.append("HIT FIRE BET")
+                                results.append("HIT FIRE BET")
                                 self.fireBetWinner = True
 
                     elif roll == 7:
                         outcome = "seven out"
-                        gameResults.append(outcome)
+                        results.append(outcome)
 
-        self.games.append(gameResults)
+        self.games.append(results)
 
 
 
-def UnitTest(): 
-
+def UnitTest():
+    
     Steve = Gambler(6)
-
+    
     while Steve.fireBetWinner == False:
         Steve.ShootCraps()
 
@@ -67,7 +68,7 @@ def UnitTest():
 
     print(flags)
 
-def RunTest(numSimulations=10, numBins=15):
+def RunExperiment(numSimulations=10, numBins=15):
 
     simulationResults = []
     for n in range(numSimulations):
@@ -75,15 +76,21 @@ def RunTest(numSimulations=10, numBins=15):
         while Bob.fireBetWinner == False:
             Bob.ShootCraps()
 
-        numGames = len(Bob.games)
-        simulationResults.append(numGames)
+        gamesPlayedToWin = len(Bob.games)
+        simulationResults.append(gamesPlayedToWin)
 
-    print("The median for this data set is", np.median(simulationResults))
+    medianGames = np.median(simulationResults)
     plt.xlabel("Games Played before hitting the Fire Bet")
     plt.ylabel("Number of Simulations")
     plt.hist(simulationResults, numBins)
     plt.show()
+    
+    sumGames = np.sum(simulationResults)
+    empiricalProb = numSimulations / sumGames
+    ratio = 1 / empiricalProb
 
+    print("Median:", medianGames)
+    print("Empirical Probability:", empiricalProb)
+    print("1 in", ratio, "games")
 
-
-RunTest(10000,50)
+RunExperiment(10000,200)
